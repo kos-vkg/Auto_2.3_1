@@ -19,28 +19,22 @@ import com.github.javafaker.Faker;
 
 class CardDeliveryTest {
 
-    private Faker faker;
-
-    @BeforeEach
-    void setUpAll() {
-        faker = new Faker(new Locale("ru"));
-    }
-
     @Test
     void shouldHappyPath() {
-
-        String name = faker.name().fullName();
-        String phone = faker.phoneNumber().phoneNumber();
-        String city = faker.address().city();
         String dateMeeting = LocalDate.now().plusDays(4).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-
+        UserData user = DataGenerator.generateUser();
+        if (user.getCity().equals("Новокузнецк") || user.getCity().equals("Сочи")
+                || user.getCity().equals("Магнитогорск")) {
+            System.out.println(user.getCity());
+            user = DataGenerator.generateUser();
+        } // исключение необслуживаемых городов см.Issue
         open("http://localhost:9999");
-        $(" [data-test-id='city'] input").setValue(city);
+        $(" [data-test-id='city'] input").setValue(user.getCity());
         $(" [data-test-id='date'] input")
                 .sendKeys(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.BACK_SPACE);
         $(" [data-test-id='date'] input").setValue(dateMeeting);
-        $("[data-test-id='name'] input").setValue(name);
-        $("[name=\"phone\"]").setValue(phone);
+        $("[data-test-id='name'] input").setValue(user.getName());
+        $("[name=\"phone\"]").setValue(user.getPhone());
         $("[data-test-id=\"agreement\"]").click();
         $$("[type='button']").findBy(cssClass("button")).click();
         $(withText("Успешно!")).shouldBe(visible, Duration.ofSeconds(15));
@@ -57,6 +51,5 @@ class CardDeliveryTest {
         $(".notification__content > button").click();
         $("[data-test-id='success-notification'] > .notification__content")
                 .shouldHave(text("Встреча успешно запланирована на " + dateMeeting2));
-
     }
 }
