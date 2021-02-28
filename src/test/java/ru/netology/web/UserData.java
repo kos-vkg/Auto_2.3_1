@@ -7,8 +7,8 @@ import lombok.Data;
 @AllArgsConstructor
 
 public class UserData {
-   private final String name;
-   private final String phone;
-   private final String city;
-   private final String date;
+    private final String name;
+    private final String phone;
+    private final String city;
+    private final String date;
 }
